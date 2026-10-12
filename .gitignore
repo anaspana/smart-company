@@ -1,0 +1,15 @@
+# Node modules
+node_modules/
+
+# Frontend build
+front/smart-company-app/dist/
+
+# Root dev tools
+npm-debug.log
+
+.vscode
+
+.env
+
+seed_script.py
+smartcompanydb.dump

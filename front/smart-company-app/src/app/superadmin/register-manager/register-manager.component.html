@@ -1,0 +1,113 @@
+<div class="container">
+    <h2 class="text-center pt-5 mt-3">Enter manager's information</h2>
+    <div class="row justify-content-center align-items-center">
+        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="w-75">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text"
+                    class="form-control"
+                    id="username"
+                    formControlName="username"
+                    placeholder="Username"
+                    [ngClass]="{
+                        'is-invalid': registerForm.get('username')?.invalid && registerForm.get('username')?.touched,
+                        'is-valid': registerForm.get('username')?.valid && registerForm.get('username')?.touched
+                    }">
+                <div *ngIf="registerForm.get('username')?.invalid  && registerForm.get('username')?.touched" class="text-danger small">
+                    This input is not valid!
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="email">Email address</label>
+                <input type="email"
+                    class="form-control"
+                    id="email"
+                    formControlName="email"
+                    placeholder="name@example.com"
+                    [ngClass]="{
+                        'is-invalid': registerForm.get('email')?.invalid && registerForm.get('email')?.touched,
+                        'is-valid': registerForm.get('email')?.valid && registerForm.get('email')?.touched
+                    }">
+                <div *ngIf="registerForm.get('email')?.invalid  && registerForm.get('email')?.touched" class="text-danger small">
+                    This input is not valid!
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password"
+                    class="form-control"
+                    id="password"
+                    formControlName="password"
+                    minlength="5"
+                    placeholder="Password"
+                    [ngClass]="{
+                        'is-invalid': registerForm.get('password')?.invalid && registerForm.get('password')?.touched,
+                        'is-valid': registerForm.get('password')?.valid && registerForm.get('password')?.touched
+                    }">
+                <div *ngIf="registerForm.get('password')?.invalid  && registerForm.get('password')?.touched" class="text-danger small">
+                    This input is not valid!
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">Confirm password</label>
+                <input type="password"
+                    class="form-control"
+                    id="confirmPassword"
+                    formControlName="confirmPassword"
+                    minlength="5"
+                    placeholder="Confirm password"
+                    [ngClass]="{
+                        'is-invalid': (
+                            registerForm.get('confirmPassword')?.invalid ||
+                            registerForm.hasError('passwordMismatch')
+                        ) && registerForm.get('confirmPassword')?.touched,
+                        'is-valid': registerForm.get('confirmPassword')?.valid && registerForm.get('confirmPassword')?.touched
+                    }">
+                <div *ngIf="registerForm.get('confirmPassword')?.errors?.['required']
+                            && registerForm.get('confirmPassword')?.touched"
+                    class="text-danger small">
+                This input is not valid!
+                </div>
+                <div *ngIf="registerForm.get('confirmPassword')?.errors?.['minlength']
+                            && registerForm.get('confirmPassword')?.touched"
+                    class="text-danger small">
+                This input is not valid!
+                </div>
+                <div *ngIf="registerForm.hasError('passwordMismatch')
+                            && registerForm.get('confirmPassword')?.touched"
+                    class="text-danger small">
+                Password must match.
+                </div>
+            </div>
+            <p class="mb-2">Profile picture</p>
+            <div class="custom-file">
+                <input 
+                    type="file"
+                    class="form-control"
+                    id="file"
+                    formControlName="file"
+                    (change)="onFileSelected($event, fileLabel)"
+                    [ngClass]="{
+                    'is-invalid': registerForm.get('file')?.invalid && formSubmitted && !selectedFile,
+                    'is-valid': !fileError && registerForm.get('file')?.value
+                    }">
+                <label #fileLabel for="file" class="custom-file-label">Choose manager's profile picture</label>
+                <div *ngIf="registerForm.get('file')?.invalid && formSubmitted && !selectedFile" class="text-danger small">
+                    Profile picture is required.
+                </div>
+                <p class="text-danger small" *ngIf="fileError">{{ errorMessage }}</p>
+            </div>
+            <div *ngIf="successMessage" class="alert alert-success mt-3">
+                {{ successMessage }}
+            </div>
+
+            <div *ngIf="errorMessage && !fileError" class="alert alert-danger mt-3">
+                {{ errorMessage }}
+            </div>
+            <button type="submit" class="btn btn-primary w-100 mt-3" [disabled]="submitting">
+                <span *ngIf="submitting" class="spinner-border spinner-border-sm me-2"></span>
+                {{ submitting ? 'Registering...' : 'Register' }}
+            </button>
+        </form>
+    </div>
+</div>

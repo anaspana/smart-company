@@ -1,0 +1,86 @@
+<div class="manager-list-container">
+
+  <div class="list-header">
+    <h2>Menadžeri</h2>
+    <div class="search-wrapper">
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Pretraži po korisničkom imenu..."
+        [(ngModel)]="search"
+        (ngModelChange)="onSearchChange()"
+      />
+      <span class="search-icon">🔍</span>
+    </div>
+  </div>
+
+  <p class="total-count" *ngIf="!loading">
+    Ukupno: <strong>{{ totalElements }}</strong> menadžera
+  </p>
+
+  <div *ngIf="errorMessage" class="error-banner">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="loading" class="loading-spinner">
+    <div class="spinner"></div>
+    <p>Učitavanje...</p>
+  </div>
+
+  <div *ngIf="!loading" class="managers-grid">
+    <div
+      class="manager-card"
+      *ngFor="let manager of managers"
+      [class.blocked]="!manager.isActive"
+    >
+      <div class="card-avatar">
+        <img [src]="manager.resolvedImageUrl || 'assets/default-avatar.png'" [alt]="manager.username" />
+        <span class="status-badge" [class.active]="manager.isActive" [class.blocked-badge]="!manager.isActive">
+          {{ manager.isActive ? 'Aktivan' : 'Blokiran' }}
+        </span>
+      </div>
+
+      <div class="card-info">
+        <h3 class="card-username">{{ manager.username }}</h3>
+        <p class="card-email">{{ manager.email }}</p>
+        <p class="card-type">{{ manager.type }}</p>
+        <p class="card-warning" *ngIf="manager.mustChangePassword">
+          ⚠️ Nije promenio lozinku
+        </p>
+      </div>
+
+      <div class="card-actions">
+        <button
+          class="btn-block"
+          [class.btn-unblock]="!manager.isActive"
+          (click)="toggleBlock(manager)"
+        >
+          {{ manager.isActive ? 'Blokiraj' : 'Odblokiraj' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && managers.length === 0 && !errorMessage" class="empty-state">
+    <p>Nema pronađenih menadžera.</p>
+  </div>
+
+  <div class="pagination" *ngIf="totalPages > 1">
+    <button class="page-btn" (click)="goToPage(currentPage - 1)"
+            [disabled]="currentPage === 0">«</button>
+
+    <ng-container *ngFor="let p of getPages()">
+      <span *ngIf="p.toString() === '...'" class="page-btn disabled">…</span>
+      <button *ngIf="p.toString() !== '...'"
+              class="page-btn"
+              [class.active]="p === currentPage"
+              (click)="goToPage(+p)">
+        {{ +p + 1 }}
+      </button>
+    </ng-container>
+
+    <button class="page-btn" (click)="goToPage(currentPage + 1)"
+            [disabled]="currentPage === totalPages - 1">»</button>
+  </div>
+
+</div>

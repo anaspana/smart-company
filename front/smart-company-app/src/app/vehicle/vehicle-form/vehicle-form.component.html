@@ -1,0 +1,81 @@
+<div class="container py-4" style="max-width: 860px;">
+
+  <h2 class="mb-4">{{ isEditMode ? 'Edit Vehicle' : 'New Vehicle' }}</h2>
+
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <h5 class="card-title">Basic Info</h5>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">License Plate <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" [(ngModel)]="licensePlate" placeholder="e.g. NS-123-AB">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Weight Limit (kg) <span class="text-danger">*</span></label>
+          <input type="number" class="form-control" [(ngModel)]="weightLimit" placeholder="e.g. 3500" min="0">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <h5 class="card-title">Brand & Model</h5>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Brand <span class="text-danger">*</span></label>
+          <select class="form-control" [(ngModel)]="selectedBrandId" (change)="onBrandChange()">
+            <option [ngValue]="null">Select brand...</option>
+            <option *ngFor="let b of brands" [ngValue]="b.id">{{ b.name }}</option>
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Model <span class="text-danger">*</span></label>
+          <select class="form-control" [(ngModel)]="selectedModelId" [disabled]="!selectedBrandId">
+            <option [ngValue]="null">Select model...</option>
+            <option *ngFor="let m of models" [ngValue]="m.id">{{ m.name }}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <h5 class="card-title">Images</h5>
+      <div class="custom-file mb-3">
+        <input type="file" class="form-control" id="vehicleImages"
+               accept="image/*" multiple (change)="onImagesSelected($event)">
+        <label for="vehicleImages" class="custom-file-label">Choose vehicle images</label>
+      </div>
+      <div *ngIf="uploadingImages" class="text-muted small mb-2">
+        <span class="spinner-border spinner-border-sm mr-1"></span> Uploading images...
+      </div>
+      <div class="d-flex flex-wrap gap-2 mt-2">
+        <div *ngFor="let url of imageUrls; let i = index"
+             style="position:relative;width:100px;height:100px;">
+          <img [src]="url" style="width:100px;height:100px;object-fit:cover;border-radius:6px;">
+          <button class="btn btn-danger btn-sm"
+                  style="position:absolute;top:4px;right:4px;padding:2px 6px;font-size:11px;"
+                  (click)="removeImage(i)">✕</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger alert-dismissible">
+    {{ error }}
+    <button type="button" class="close" (click)="error = ''">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+
+  <div class="d-flex mt-2">
+    <button class="btn btn-primary w-50 mr-2" (click)="submit()" [disabled]="loading || uploadingImages">
+      <span *ngIf="loading" class="spinner-border spinner-border-sm mr-1"></span>
+      {{ isEditMode ? 'Save Changes' : 'Create Vehicle' }}
+    </button>
+    <a routerLink="/vehicles" class="btn btn-outline-secondary w-50 ml-2 text-center">Cancel</a>
+  </div>
+
+</div>

@@ -1,0 +1,13 @@
+{
+    "name": "smart-company-project",
+    "version": "1.0.0",
+    "scripts": {
+        "postinstall": "cd front/smart-company-app && npm install",
+        "start:backend": "cd back/smartcompany && mvnw spring-boot:run",
+        "start:frontend": "cd front/smart-company-app && ng serve",
+        "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\""
+    },
+    "devDependencies": {
+        "concurrently": "^9.2.1"
+    }
+}

@@ -1,0 +1,3 @@
+<app-navbar></app-navbar>
+<app-change-password *ngIf="(axios.getRole() == 'SuperAdmin' && !axios.getIsActive()) || (axios.getRole() == 'Manager' && !axios.getIsActive())"></app-change-password>
+<router-outlet *ngIf="(axios.getRole() == 'SuperAdmin' && axios.getIsActive()) || (axios.getRole() == 'Manager' && axios.getIsActive()) || (axios.getRole() != 'SuperAdmin' && axios.getRole() != 'Manager')"></router-outlet>

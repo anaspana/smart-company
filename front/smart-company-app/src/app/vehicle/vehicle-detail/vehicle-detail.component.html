@@ -1,0 +1,75 @@
+<div class="detail-page">
+
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading vehicle...</p>
+  </div>
+  <div *ngIf="error" class="error-banner">{{ error }}</div>
+
+  <ng-container *ngIf="vehicle && !loading">
+
+    <div class="detail-header">
+      <a routerLink="/vehicles" class="back-link">← Back to vehicles</a>
+      <div class="header-row">
+        <div>
+          <h1 class="vehicle-name">{{ vehicle.licensePlate }}</h1>
+          <p class="vehicle-address">{{ vehicle.brand.name }} {{ vehicle.model.name }}</p>
+        </div>
+        <div class="online-badge" [class.online]="vehicle.isOnline" [class.offline]="!vehicle.isOnline">
+          <span class="badge-dot"></span>
+          {{ vehicle.isOnline ? 'Online' : 'Offline' }}
+        </div>
+      </div>
+      <p class="heartbeat-info">Last heartbeat: <strong>{{ formatHeartbeat(vehicle.lastHeartbeat) }}</strong></p>
+      <p class="text-muted">Weight limit: {{ vehicle.weightLimit }} kg</p>
+
+      <div *ngIf="vehicle.latitude && vehicle.longitude">
+        <div class="coord-info">📍 {{ vehicle.latitude | number:'1.4-6' }}, {{ vehicle.longitude | number:'1.4-6' }}</div>
+        <div id="detail-map" style="height:220px; border-radius:10px; margin-top:1rem;"></div>
+      </div>
+      <div *ngIf="!vehicle.latitude" class="text-muted mt-2">
+        No location data yet.
+      </div>
+    </div>
+
+    <section class="gallery-section" *ngIf="imageUrls.length > 0">
+      <div class="gallery-wrapper">
+        <div class="gallery-frame">
+          <img [src]="imageUrls[currentImageIndex]" alt="Vehicle image" class="gallery-img"/>
+          <div class="gallery-counter" *ngIf="imageUrls.length > 1">
+            {{ currentImageIndex + 1 }} / {{ imageUrls.length }}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="chart-section">
+        <h2 class="section-title">Distance traveled</h2>
+
+        <div class="period-bar">
+            <div class="period-tabs">
+            <button *ngFor="let p of periods"
+                    class="period-tab"
+                    [class.active]="selectedPeriod === p.value"
+                    (click)="selectedPeriod = p.value; onPeriodChange()">
+                {{ p.label }}
+            </button>
+            </div>
+            <div *ngIf="selectedPeriod === 'CUSTOM'" class="custom-range">
+            <label>From: <input type="date" [(ngModel)]="customFrom" (change)="loadChart()"/></label>
+            <label>To: <input type="date" [(ngModel)]="customTo" (change)="loadChart()"/></label>
+            </div>
+        </div>
+
+        <div class="chart-wrapper">
+            <div *ngIf="loadingChart" class="chart-loading">Loading chart data...</div>
+            <div *ngIf="chartError" class="chart-error">{{ chartError }}</div>
+            <div *ngIf="!loadingChart && !chartError && !chartHasData" class="no-data-msg">
+            No distance data for this period.
+            </div>
+            <canvas #chartCanvas *ngIf="chartHasData && !loadingChart"></canvas>
+        </div>
+    </section>
+
+  </ng-container>
+</div>

@@ -1,0 +1,131 @@
+<div class="container-fluid py-4">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">Warehouses</h2>
+    <a routerLink="/warehouses/new" class="btn btn-primary">
+      <i class="bi bi-plus-lg me-1"></i> Add Warehouse
+    </a>
+  </div>
+
+  <div class="card mb-4 shadow-sm">
+    <div class="card-body">
+      <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between">
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+          <input type="text" class="form-control filter-input" placeholder="🔍  Search by name..."
+                 [(ngModel)]="searchText" (input)="onSearchInput()">
+
+          <select class="form-select filter-select mx-2" [(ngModel)]="selectedCountryId" (change)="onCountryChange()">
+            <option [ngValue]="null">All countries</option>
+            <option *ngFor="let c of countries" [ngValue]="c.id">{{ c.name }}</option>
+          </select>
+
+          <select class="form-select filter-select mr-2" [(ngModel)]="selectedCityId" (change)="onFilterChange()"
+                  [disabled]="!selectedCountryId">
+            <option [ngValue]="null">All cities</option>
+            <option *ngFor="let c of cities" [ngValue]="c.id">{{ c.name }}</option>
+          </select>
+
+          <select class="form-select filter-select filter-select--short" [(ngModel)]="isOnline" (change)="onFilterChange()">
+            <option [ngValue]="null">All statuses</option>
+            <option [ngValue]="true">🟢 Online</option>
+            <option [ngValue]="false">⚫ Offline</option>
+          </select>
+        </div>
+        <button class="btn btn-sm btn-outline-danger" (click)="resetFilters()">✕ Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary"></div>
+  </div>
+
+  <div *ngIf="deleteError" class="alert alert-danger alert-dismissible">
+    {{ deleteError }}
+    <button type="button" class="close" (click)="deleteError=''">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+
+  <div *ngIf="!loading" class="text-muted small mb-3">
+    {{ totalElements }} warehouses found
+  </div>
+
+  <div *ngIf="!loading" class="row g-3">
+    <div *ngFor="let warehouse of warehouses" class="col-md-6 col-lg-4">
+      <div class="card h-100 shadow-sm">
+
+        <div class="warehouse-card-img-wrapper bg-light">
+          <img *ngIf="warehouseImages.get(warehouse.id) as imgUrl"
+               [src]="imgUrl" [alt]="warehouse.name"
+               class="card-img-top warehouse-card-img"
+               loading="lazy">
+          <div *ngIf="!warehouseImages.get(warehouse.id)"
+               class="warehouse-card-img d-flex align-items-center justify-content-center text-muted">
+            <i class="bi bi-building" style="font-size:2rem"></i>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start mb-1">
+            <h5 class="card-title mb-0">{{ warehouse.name }}</h5>
+            <span class="badge" [class.badge-success]="warehouse.isOnline" [class.badge-secondary]="!warehouse.isOnline">
+              {{ warehouse.isOnline ? 'Online' : 'Offline' }}
+            </span>
+          </div>
+          <p class="text-muted small mb-1">
+            <i class="bi bi-geo-alt me-1"></i>
+            {{ warehouse.city.name }}, {{ warehouse.country.name }}
+          </p>
+          <p *ngIf="warehouse.address" class="text-muted small mb-2">{{ warehouse.address }}</p>
+          <p class="text-muted small mb-1" *ngIf="warehouse.lastHeartbeat">
+            Last heartbeat: {{ warehouse.lastHeartbeat | date:'short' }}
+          </p>
+          <p class="text-muted small mb-0">
+            Sectors: {{ warehouse.sectors.length }}
+          </p>
+        </div>
+
+        <div class="card-footer bg-transparent d-flex gap-2">
+          <a [routerLink]="['/warehouses', warehouse.id]" class="btn btn-outline-primary btn-sm flex-fill mr-1">View</a>
+          <a [routerLink]="['/warehouses/edit', warehouse.id]" class="btn btn-outline-secondary btn-sm flex-fill mx-1">Edit</a>
+
+          <ng-container *ngIf="confirmDeleteId !== warehouse.id">
+            <button class="btn btn-outline-danger btn-sm flex-fill ml-1" (click)="deleteWarehouse(warehouse.id)">
+              Delete
+            </button>
+          </ng-container>
+
+          <ng-container *ngIf="confirmDeleteId === warehouse.id">
+            <button class="btn btn-danger btn-sm flex-fill mx-1" (click)="confirmDelete()">Yes</button>
+            <button class="btn btn-outline-secondary btn-sm flex-fill ml-1" (click)="cancelDelete()">No</button>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="warehouses.length === 0" class="col-12 text-center text-muted py-5">
+      No warehouses found.
+    </div>
+  </div>
+
+  <nav *ngIf="totalPages > 1" class="mt-4">
+    <ul class="pagination justify-content-center flex-wrap">
+      <li class="page-item" [class.disabled]="currentPage === 0">
+        <button class="page-link" (click)="goToPage(currentPage - 1)">«</button>
+      </li>
+      <ng-container *ngFor="let p of getPages()">
+        <li *ngIf="p.toString() === '...'" class="page-item disabled">
+          <span class="page-link">…</span>
+        </li>
+        <li *ngIf="p.toString() !== '...'" class="page-item" [class.active]="p === currentPage">
+          <button class="page-link" (click)="goToPage(+p)">{{ +p + 1 }}</button>
+        </li>
+      </ng-container>
+      <li class="page-item" [class.disabled]="currentPage === totalPages - 1">
+        <button class="page-link" (click)="goToPage(currentPage + 1)">»</button>
+      </li>
+    </ul>
+  </nav>
+
+</div>

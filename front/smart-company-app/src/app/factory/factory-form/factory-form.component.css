@@ -1,0 +1,6 @@
+/* Leaflet zahteva ove stilove globalno */
+@import 'leaflet/dist/leaflet.css';
+
+#factory-map {
+  z-index: 1;
+}

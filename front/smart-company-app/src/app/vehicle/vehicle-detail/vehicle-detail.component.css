@@ -1,0 +1,291 @@
+.detail-page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  font-family: inherit;
+}
+
+/* ── Header ── */
+.back-link {
+  display: inline-block;
+  color: #6b7280;
+  text-decoration: none;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  transition: color 0.2s;
+}
+.back-link:hover { color: #111; }
+
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.vehicle-name {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem;
+}
+
+.vehicle-address {
+  color: #6b7280;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.heartbeat-info {
+  color: #6b7280;
+  font-size: 0.85rem;
+  margin: 0.5rem 0 0;
+}
+
+.coord-info {
+  font-size: 0.82rem;
+  color: #9ca3af;
+  margin-top: 0.25rem;
+}
+
+/* ── Online badge ── */
+.online-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.online-badge.online  { background: #dcfce7; color: #15803d; }
+.online-badge.offline { background: #f3f4f6; color: #6b7280; }
+
+.badge-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.online  .badge-dot { background: #16a34a; }
+.offline .badge-dot { background: #9ca3af; }
+
+/* ── Gallery ── */
+.gallery-section {
+  margin: 2rem 0;
+}
+
+.gallery-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.gallery-frame {
+  flex: 1;
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f3f4f6;
+  max-height: 420px;
+}
+
+.gallery-img {
+  width: 100%;
+  height: 420px;
+  object-fit: cover;
+  display: block;
+}
+
+.gallery-counter {
+  position: absolute;
+  bottom: 10px; right: 14px;
+  background: rgba(0,0,0,0.5);
+  color: #fff;
+  font-size: 0.78rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.gallery-btn {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 50%;
+  width: 40px; height: 40px;
+  font-size: 1.4rem;
+  cursor: pointer;
+  transition: background 0.15s;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.gallery-btn:hover:not(:disabled) { background: #f3f4f6; }
+.gallery-btn:disabled { opacity: 0.3; cursor: default; }
+
+.gallery-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+}
+.dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #d1d5db;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.2s;
+}
+.dot.active { background: #4f46e5; }
+
+.no-images {
+  color: #9ca3af;
+  font-size: 0.9rem;
+  margin: 1rem 0;
+}
+
+/* ── Sections ── */
+.section-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.products-section { margin: 2rem 0; }
+.chart-section    { margin: 2rem 0; }
+
+/* ── Product grid ── */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+.product-card {
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background: #fff;
+}
+.product-card:hover   { border-color: #a5b4fc; box-shadow: 0 2px 8px rgba(79,70,229,0.1); }
+.product-card.selected { border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79,70,229,0.15); }
+
+.product-img-wrapper {
+  height: 90px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #f3f4f6;
+  margin-bottom: 0.6rem;
+  display: flex; align-items: center; justify-content: center;
+}
+.product-img { width: 100%; height: 100%; object-fit: cover; }
+.product-img-placeholder { font-size: 2rem; }
+
+.product-name  { font-weight: 600; font-size: 0.85rem; margin: 0 0 2px; }
+.product-cat   { color: #9ca3af; font-size: 0.75rem; margin: 0 0 2px; }
+.product-price { color: #4f46e5; font-size: 0.82rem; font-weight: 600; margin: 0 0 4px; }
+
+.product-sale-badge {
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+.for-sale     { background: #dcfce7; color: #15803d; }
+.not-for-sale { background: #fee2e2; color: #dc2626; }
+
+/* ── Period bar ── */
+.period-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.period-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.period-tab {
+  padding: 0.35rem 0.85rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  background: #fff;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.period-tab:hover  { border-color: #4f46e5; color: #4f46e5; }
+.period-tab.active { background: #4f46e5; color: #fff; border-color: #4f46e5; }
+
+.custom-range {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
+  font-size: 0.85rem;
+  color: #374151;
+}
+.custom-range input[type="date"] {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.83rem;
+}
+
+/* ── Chart ── */
+.chart-wrapper {
+  position: relative;
+  background: #fafafa;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.25rem;
+  min-height: 280px;
+}
+
+.chart-loading, .chart-error, .no-data-msg {
+  text-align: center;
+  padding: 3rem 0;
+  color: #9ca3af;
+  font-size: 0.9rem;
+}
+.chart-error { color: #dc2626; }
+
+.product-highlight { color: #4f46e5; }
+
+/* ── Loading / Error states ── */
+.loading-state {
+  text-align: center;
+  padding: 4rem 0;
+  color: #6b7280;
+}
+.loading-state.small { padding: 1.5rem 0; }
+
+.spinner {
+  width: 36px; height: 36px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #4f46e5;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin: 0 auto 1rem;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.error-banner {
+  background: #fee2e2;
+  color: #dc2626;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.empty-msg { color: #9ca3af; font-size: 0.9rem; }
+
+#detail-map { z-index: 1; }

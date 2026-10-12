@@ -1,0 +1,111 @@
+<div class="detail-page">
+
+  <!-- Loading / Error -->
+  <div *ngIf="loadingFactory" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading factory...</p>
+  </div>
+  <div *ngIf="error" class="error-banner">{{ error }}</div>
+
+  <ng-container *ngIf="factory && !loadingFactory">
+
+    <!-- Header -->
+    <div class="detail-header">
+      <a routerLink="/factories" class="back-link">← Back to factories</a>
+      <div class="header-row">
+        <div>
+          <h1 class="factory-name">{{ factory.name }}</h1>
+          <p class="factory-address">{{ factory.address }}, {{ factory.city.name }}, {{ factory.country.name }}</p>
+        </div>
+        <div class="online-badge" [class.online]="factory.isOnline" [class.offline]="!factory.isOnline">
+          <span class="badge-dot"></span>
+          {{ factory.isOnline ? 'Online' : 'Offline' }}
+        </div>
+      </div>
+      <p class="heartbeat-info">Last heartbeat: <strong>{{ formatHeartbeat(factory.lastHeartbeat) }}</strong></p>
+      <div class="coord-info">📍 {{ factory.latitude | number:'1.4-6' }}, {{ factory.longitude | number:'1.4-6' }}</div>
+      <div id="detail-map" style="height:220px; border-radius:10px; margin-top:1rem;"></div>
+    </div>
+
+    <!-- Image Gallery -->
+    <section class="gallery-section" *ngIf="imageUrls.length > 0">
+      <div class="gallery-wrapper">
+        <button class="gallery-btn" (click)="prevImage()" [disabled]="imageUrls.length <= 1">‹</button>
+        <div class="gallery-frame">
+          <img [src]="imageUrls[currentImageIndex]" alt="Factory image" class="gallery-img" />
+          <div class="gallery-counter" *ngIf="imageUrls.length > 1">
+            {{ currentImageIndex + 1 }} / {{ imageUrls.length }}
+          </div>
+        </div>
+        <button class="gallery-btn" (click)="nextImage()" [disabled]="imageUrls.length <= 1">›</button>
+      </div>
+      <div class="gallery-dots" *ngIf="imageUrls.length > 1">
+        <button *ngFor="let url of imageUrls; let i = index"
+                class="dot" [class.active]="i === currentImageIndex"
+                (click)="currentImageIndex = i"></button>
+      </div>
+    </section>
+    <div *ngIf="factory.imageKeys?.length === 0" class="no-images">No images available.</div>
+
+    <!-- Products -->
+    <section class="products-section">
+      <h2 class="section-title">Products manufactured here</h2>
+      <div *ngIf="loadingProducts" class="loading-state small">Loading products...</div>
+      <div *ngIf="!loadingProducts && products.length === 0" class="empty-msg">No products assigned to this factory.</div>
+
+      <div class="product-grid" *ngIf="!loadingProducts && products.length > 0">
+        <div *ngFor="let p of products"
+             class="product-card"
+             [class.selected]="selectedProduct?.id === p.id"
+             (click)="selectProduct(p)">
+          <div class="product-img-wrapper">
+            <img *ngIf="productImageUrls.get(p.id) as imgUrl"
+                 [src]="imgUrl" [alt]="p.name" class="product-img" />
+            <div *ngIf="!productImageUrls.get(p.id)" class="product-img-placeholder">📦</div>
+          </div>
+          <div class="product-info">
+            <p class="product-name">{{ p.name }}</p>
+            <p class="product-cat">{{ p.category.name }}</p>
+            <p class="product-price">€{{ p.price | number:'1.2-2' }}</p>
+            <span class="product-sale-badge" [class.for-sale]="p.forSale" [class.not-for-sale]="!p.forSale">
+              {{ p.forSale ? 'For sale' : 'Not for sale' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chart -->
+    <section class="chart-section" *ngIf="selectedProduct">
+      <h2 class="section-title">
+        Production: <span class="product-highlight">{{ selectedProduct.name }}</span>
+      </h2>
+
+      <div class="period-bar">
+        <div class="period-tabs">
+          <button *ngFor="let p of periods"
+                  class="period-tab"
+                  [class.active]="selectedPeriod === p.value"
+                  (click)="selectedPeriod = p.value; onPeriodChange()">
+            {{ p.label }}
+          </button>
+        </div>
+        <div *ngIf="selectedPeriod === 'CUSTOM'" class="custom-range">
+          <label>From: <input type="date" [(ngModel)]="customFrom" (change)="loadChart()" /></label>
+          <label>To:   <input type="date" [(ngModel)]="customTo"   (change)="loadChart()" /></label>
+        </div>
+      </div>
+
+      <div class="chart-wrapper">
+        <div *ngIf="loadingChart" class="chart-loading">Loading chart data...</div>
+        <div *ngIf="chartError"   class="chart-error">{{ chartError }}</div>
+        <div *ngIf="!loadingChart && !chartError && !chartHasData && selectedProduct" class="no-data-msg">
+          No production data for this period.
+        </div>
+        <!-- Canvas je uvek u DOM-u kada ima podataka; Chart.js ga pronalazi po id-u -->
+        <canvas #chartCanvas *ngIf="chartHasData && !loadingChart"></canvas>
+      </div>
+    </section>
+
+  </ng-container>
+</div>

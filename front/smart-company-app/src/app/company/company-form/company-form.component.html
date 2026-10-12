@@ -1,0 +1,131 @@
+<div class="container py-4" style="max-width: 860px;">
+
+  <div class="d-flex align-items-center mb-4 gap-3">
+    <h2 class="mb-0">Register a Company</h2>
+  </div>
+
+  <!-- Naziv i adresa -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <h5 class="card-title">Basic Info</h5>
+      <div class="mb-3">
+        <label class="form-label">Name <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" [(ngModel)]="name" placeholder="Company name">
+      </div>
+      <div class="mb-0">
+        <label class="form-label">Address</label>
+        <input type="text" class="form-control" [(ngModel)]="address" placeholder="Street address">
+      </div>
+    </div>
+  </div>
+
+  <!-- Država i grad -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <h5 class="card-title">Location</h5>
+      <div class="row g-3 mb-3">
+        <div class="col-md-6">
+          <label class="form-label">Country <span class="text-danger">*</span></label>
+          <select class="form-control" [(ngModel)]="selectedCountryId" (change)="onCountryChange()">
+            <option [ngValue]="null">Select country...</option>
+            <option *ngFor="let c of countries" [ngValue]="c.id">{{ c.name }}</option>
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">City <span class="text-danger">*</span></label>
+          <select class="form-control" [(ngModel)]="selectedCityId" [disabled]="!selectedCountryId" (change)="onCityChange()">
+            <option [ngValue]="null">Select city...</option>
+            <option *ngFor="let c of cities" [ngValue]="c.id">{{ c.name }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row g-3 mb-3" *ngIf="latitude != null">
+        <div class="col-md-6">
+          <label class="form-label">Latitude</label>
+          <input type="text" class="form-control" [value]="latitude" readonly>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Longitude</label>
+          <input type="text" class="form-control" [value]="longitude" readonly>
+        </div>
+      </div>
+
+      <p class="text-muted small mb-2">
+        <i class="bi bi-info-circle me-1"></i>
+        Click on the map to set the company location <span class="text-danger">*</span>
+      </p>
+      <div id="company-map" style="height: 380px; border-radius: 8px;"></div>
+    </div>
+  </div>
+
+  <!-- Slike firme -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <h5 class="card-title">Company Images</h5>
+      <p class="text-muted small">Optional photos of the company premises.</p>
+      <div class="custom-file mb-3">
+        <input type="file" class="form-control" id="companyImages"
+              accept="image/*" multiple (change)="onImagesSelected($event)">
+        <label for="companyImages" class="custom-file-label">Choose company images</label>
+      </div>
+      <div *ngIf="uploadingImages" class="text-muted small mb-2">
+        <span class="spinner-border spinner-border-sm me-1"></span> Uploading images...
+      </div>
+      <div class="d-flex flex-wrap gap-2 mt-2">
+        <div *ngFor="let url of imageUrls; let i = index"
+            style="position:relative;width:100px;height:100px;">
+          <img [src]="url" style="width:100px;height:100px;object-fit:cover;border-radius:6px;">
+          <button class="btn btn-danger btn-sm"
+                  style="position:absolute;top:4px;right:4px;padding:2px 6px;font-size:11px;"
+                  (click)="removeImage(i)">✕</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dokumenti za dokaz vlasništva -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <h5 class="card-title">Ownership Documents <span class="text-danger">*</span></h5>
+      <p class="text-muted small">Upload images and/or PDF documents proving your right to register this company.</p>
+      <div class="custom-file mb-3">
+        <input type="file" class="form-control" id="companyDocs"
+              accept="image/*,application/pdf" multiple (change)="onDocumentsSelected($event)">
+        <label for="companyDocs" class="custom-file-label">Choose documents</label>
+      </div>
+      <div *ngIf="uploadingDocuments" class="text-muted small mb-2">
+        <span class="spinner-border spinner-border-sm me-1"></span> Uploading documents...
+      </div>
+      <div class="d-flex flex-wrap gap-2 mt-2">
+        <div *ngFor="let doc of documents; let i = index"
+            style="position:relative;width:100px;height:100px;">
+          <img *ngIf="doc.fileType === 'image' && documentUrls[i]"
+              [src]="documentUrls[i]"
+              style="width:100px;height:100px;object-fit:cover;border-radius:6px;">
+          <div *ngIf="doc.fileType === 'pdf'"
+              class="d-flex align-items-center justify-content-center bg-light"
+              style="width:100px;height:100px;border-radius:6px;border:1px solid #dee2e6;">
+            <i class="bi bi-file-pdf" style="font-size:2rem;color:#dc3545;"></i>
+          </div>
+          <button class="btn btn-danger btn-sm"
+                  style="position:absolute;top:4px;right:4px;padding:2px 6px;font-size:11px;"
+                  (click)="removeDocument(i)">✕</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Submit -->
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+  <div class="d-flex gap-2 mt-2">
+    <button class="btn btn-primary w-50 mr-2" (click)="submit()"
+            [disabled]="loading || uploadingImages || uploadingDocuments">
+      <span *ngIf="loading" class="spinner-border spinner-border-sm me-1"></span>
+      Submit Registration Request
+    </button>
+    <a routerLink="/products" class="btn btn-outline-secondary w-50 ml-2 text-center">Cancel</a>
+  </div>
+
+</div>

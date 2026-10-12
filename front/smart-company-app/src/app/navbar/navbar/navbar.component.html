@@ -1,0 +1,38 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light mb-5">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbar"
+        aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbar">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item active" *ngIf="axios.getRole() != null && !axios.getMustChangePassword()">
+              <a class="nav-link" [routerLink]="['products']">Products</a>
+            </li>
+            <app-manager-navbar
+                *ngIf="(axios.getRole() == 'Manager' || axios.getRole() == 'SuperAdmin') && axios.getIsActive() == true && !axios.getMustChangePassword()" class="navbar-nav">
+            </app-manager-navbar>
+            <app-superadmin-navbar *ngIf="axios.getRole() == 'SuperAdmin' && axios.getIsActive() == true && !axios.getMustChangePassword()" class="navbar-nav"></app-superadmin-navbar>
+            <app-customer-navbar *ngIf="axios.getRole() == 'Customer' && axios.getIsActive() == true && !axios.getMustChangePassword()" class="navbar-nav"></app-customer-navbar>
+        </ul>
+        <span>
+            <ul class="navbar-nav ml-auto">
+                <li *ngIf="preSignedUrl != null" class="d-flex justify-content-center align-items-center nav-item active mr-2">
+                    <img [src]="preSignedUrl" alt="Fetched Image" (error)="fetchImage()" class="rounded-circle article-img image"/>
+                </li>
+                <li *ngIf="axios.getRole() != null" class="nav-item active">
+                    <a class="nav-link">{{axios.getUsername()}}</a>
+                </li>
+                <li *ngIf="axios.getRole() == null" class="nav-item active">
+                    <a class="nav-link" [routerLink]="['login']">Log In</a>
+                </li>
+                <li *ngIf="axios.getRole() == null" class="nav-item active">
+                    <a class="nav-link" [routerLink]="['register']">Sign Up</a>
+                </li>
+                <li *ngIf="axios.getRole() != null" class="nav-item active">
+                    <a (click)="logOut()" class="nav-link" [routerLink]="['login']">Log Out</a>
+                </li>
+            </ul>
+        </span>
+    </div>
+</nav>

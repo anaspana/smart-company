@@ -1,0 +1,101 @@
+<div class="detail-page">
+
+  <div *ngIf="loadingWarehouse" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading warehouse...</p>
+  </div>
+  <div *ngIf="error" class="error-banner">{{ error }}</div>
+
+  <ng-container *ngIf="warehouse && !loadingWarehouse">
+
+    <div class="detail-header">
+      <a routerLink="/warehouses" class="back-link">← Back to warehouses</a>
+      <div class="header-row">
+        <div>
+          <h1 class="warehouse-name">{{ warehouse.name }}</h1>
+          <p class="warehouse-address">{{ warehouse.address }}, {{ warehouse.city.name }}, {{ warehouse.country.name }}</p>
+        </div>
+        <div class="online-badge" [class.online]="warehouse.isOnline" [class.offline]="!warehouse.isOnline">
+          <span class="badge-dot"></span>
+          {{ warehouse.isOnline ? 'Online' : 'Offline' }}
+        </div>
+      </div>
+      <p class="heartbeat-info">Last heartbeat: <strong>{{ formatHeartbeat(warehouse.lastHeartbeat) }}</strong></p>
+      <div class="coord-info">📍 {{ warehouse.latitude | number:'1.4-6' }}, {{ warehouse.longitude | number:'1.4-6' }}</div>
+      <div id="detail-map" style="height:220px; border-radius:10px; margin-top:1rem;"></div>
+    </div>
+
+    <section class="gallery-section" *ngIf="imageUrls.length > 0">
+      <div class="gallery-wrapper">
+        <button class="gallery-btn" (click)="prevImage()" [disabled]="imageUrls.length <= 1">‹</button>
+        <div class="gallery-frame">
+          <img [src]="imageUrls[currentImageIndex]" alt="Warehouse image" class="gallery-img"/>
+          <div class="gallery-counter" *ngIf="imageUrls.length > 1">
+            {{ currentImageIndex + 1 }} / {{ imageUrls.length }}
+          </div>
+        </div>
+        <button class="gallery-btn" (click)="nextImage()" [disabled]="imageUrls.length <= 1">›</button>
+      </div>
+      <div class="gallery-dots" *ngIf="imageUrls.length > 1">
+        <button *ngFor="let url of imageUrls; let i = index"
+                class="dot" [class.active]="i === currentImageIndex"
+                (click)="currentImageIndex = i"></button>
+      </div>
+    </section>
+
+    <section class="products-section">
+      <h2 class="section-title">Sectors</h2>
+      <div *ngIf="!warehouse.sectors.length" class="empty-msg">No sectors defined.</div>
+      <div class="product-grid" *ngIf="warehouse.sectors.length">
+        <div *ngFor="let sector of warehouse.sectors"
+             class="product-card"
+             [class.selected]="selectedSector?.id === sector.id"
+             (click)="selectSector(sector)">
+          <div class="product-info">
+            <p class="product-name">{{ sector.name }}</p>
+            <p class="product-cat" *ngIf="sector.lastTemperature != null">
+              🌡️ {{ sector.lastTemperature | number:'1.1-1' }} °C
+            </p>
+            <p class="product-cat text-muted" *ngIf="sector.lastTemperature == null">
+              No data yet
+            </p>
+            <p class="text-muted small" *ngIf="sector.lastMeasuredAt">
+              {{ sector.lastMeasuredAt | date:'short' }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="chart-section" *ngIf="selectedSector">
+      <h2 class="section-title">
+        Temperature: <span class="product-highlight">{{ selectedSector.name }}</span>
+      </h2>
+
+      <div class="period-bar">
+        <div class="period-tabs">
+          <button *ngFor="let p of periods"
+                  class="period-tab"
+                  [class.active]="selectedPeriod === p.value"
+                  (click)="selectedPeriod = p.value; onPeriodChange()">
+            {{ p.label }}
+          </button>
+        </div>
+        <div *ngIf="selectedPeriod === 'CUSTOM'" class="custom-range">
+          <label>From: <input type="date" [(ngModel)]="customFrom" (change)="loadChart()"/></label>
+          <label>To: <input type="date" [(ngModel)]="customTo" (change)="loadChart()"/></label>
+        </div>
+      </div>
+
+      <div class="chart-wrapper">
+        <div *ngIf="loadingChart" class="chart-loading">Loading chart data...</div>
+        <div *ngIf="chartError" class="chart-error">{{ chartError }}</div>
+        <div *ngIf="!loadingChart && !chartError && !chartHasData" class="no-data-msg">
+          No temperature data for this period.
+        </div>
+        <canvas #chartCanvas *ngIf="chartHasData && !loadingChart"></canvas>
+      </div>
+    </section>
+
+  </ng-container>
+</div>

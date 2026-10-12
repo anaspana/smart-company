@@ -1,0 +1,234 @@
+<div class="container py-4">
+
+  <h2 class="mb-4">Kreiranje porudžbine</h2>
+
+  <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible">
+    {{ errorMessage }}
+    <button type="button" class="close" (click)="errorMessage = ''">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div *ngIf="successMessage" class="alert alert-success alert-dismissible">
+    {{ successMessage }}
+    <button type="button" class="close" (click)="successMessage = ''">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+
+  <div class="row">
+
+    <!-- Leva strana: proizvodi -->
+    <div class="col-lg-8">
+
+      <!-- Filteri -->
+      <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+          <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+            <input
+              type="text"
+              class="form-control product-search mb-3"
+              placeholder="🔍  Pretraži po nazivu..."
+              [(ngModel)]="searchQuery"
+              (ngModelChange)="onSearchChange()">
+
+            <select class="form-control product-select"
+                    [(ngModel)]="selectedCategoryId" (change)="onCategoryChange()">
+              <option [ngValue]="null">Sve kategorije</option>
+              <option *ngFor="let c of categories" [ngValue]="c.id">{{ c.name }}</option>
+            </select>
+          </div>
+
+          <div class="d-flex align-items-center gap-1">
+            <input type="number" class="form-control product-price-input" placeholder="Min €"
+                    [(ngModel)]="minPrice" (change)="onCategoryChange()" min="0">
+            <input type="number" class="form-control product-price-input" placeholder="Max €"
+                    [(ngModel)]="maxPrice" (change)="onCategoryChange()" min="0">
+          </div>
+
+          <div class="d-flex align-items-center justify-content-between pt-2 border-top mt-2">
+            <div class="d-flex align-items-center gap-2">
+              <span class="text-muted small">Sortiraj po:</span>
+              <button class="btn btn-sm mx-1"
+                      [class.btn-primary]="sortBy === 'name'"
+                      [class.btn-outline-secondary]="sortBy !== 'name'"
+                      (click)="onSortChange('name')">
+                Naziv {{ sortBy === 'name' ? (sortDir === 'asc' ? '↑' : '↓') : '' }}
+              </button>
+              <button class="btn btn-sm mx-1"
+                      [class.btn-primary]="sortBy === 'price'"
+                      [class.btn-outline-secondary]="sortBy !== 'price'"
+                      (click)="onSortChange('price')">
+                Cena {{ sortBy === 'price' ? (sortDir === 'asc' ? '↑' : '↓') : '' }}
+              </button>
+              <button class="btn btn-sm mx-1"
+                      [class.btn-primary]="sortBy === 'weight'"
+                      [class.btn-outline-secondary]="sortBy !== 'weight'"
+                      (click)="onSortChange('weight')">
+                Težina {{ sortBy === 'weight' ? (sortDir === 'asc' ? '↑' : '↓') : '' }}
+              </button>
+            </div>
+            <button class="btn btn-sm btn-outline-danger" (click)="resetFilters()">✕ Reset</button>
+          </div>
+        </div>
+      </div>
+
+      <p class="text-muted small mb-3" *ngIf="!isLoadingProducts">
+        {{ totalElements }} proizvoda pronađeno
+      </p>
+
+      <div *ngIf="isLoadingProducts" class="text-center py-5">
+        <div class="spinner-border text-primary"></div>
+      </div>
+
+      <div class="row" *ngIf="!isLoadingProducts">
+        <div class="col-md-6 product-col" *ngFor="let product of products">
+          <div class="card h-100" [class.border-primary]="getCartQuantity(product.id) > 0">
+            <div class="row g-0 h-100">
+
+              <div class="col-4" *ngIf="productImages[product.id]">
+                <img
+                  [src]="productImages[product.id]"
+                  class="img-fluid rounded-start h-100"
+                  style="object-fit: cover;"
+                  [alt]="product.name"/>
+              </div>
+
+              <div [class]="productImages[product.id] ? 'col-8' : 'col-12'">
+                <div class="card-body d-flex flex-column h-100">
+                  <h6 class="card-title mb-1">{{ product.name }}</h6>
+                  <p class="text-muted small mb-1">{{ product.category.name }}</p>
+                  <p class="font-weight-bold mb-1">{{ product.price | number:'1.2-2' }} €</p>
+                  <p class="small mb-2"
+                     [class.text-danger]="product.totalStock === 0"
+                     [class.text-muted]="product.totalStock > 0">
+                    Na stanju: {{ product.totalStock }} kom
+                  </p>
+
+                  <div class="mt-auto">
+                    <div *ngIf="getCartQuantity(product.id) === 0">
+                      <button
+                        class="btn btn-primary btn-sm w-100"
+                        (click)="addToCart(product)"
+                        [disabled]="product.totalStock === 0">
+                        {{ product.totalStock === 0 ? 'Nema na stanju' : 'Dodaj u korpu' }}
+                      </button>
+                    </div>
+
+                    <div *ngIf="getCartQuantity(product.id) > 0" class="d-flex align-items-center gap-1">
+                      <button class="btn btn-outline-secondary btn-sm"
+                        (click)="updateQuantity(getCartItem(product.id)!, getCartQuantity(product.id) - 1)">−</button>
+                      <input
+                        type="number"
+                        class="form-control form-control-sm text-center"
+                        style="width: 60px;"
+                        [value]="getCartQuantity(product.id)"
+                        (change)="updateQuantity(getCartItem(product.id)!, +$any($event.target).value)"
+                        min="1"
+                        [max]="product.totalStock"/>
+                      <button class="btn btn-outline-secondary btn-sm"
+                        (click)="addToCart(product)"
+                        [disabled]="getCartQuantity(product.id) >= product.totalStock">+</button>
+                      <button class="btn btn-outline-danger btn-sm ml-auto"
+                        (click)="removeFromCart(product.id)">✕</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="products.length === 0" class="col-12 text-center text-muted py-5">
+          Nema proizvoda koji odgovaraju pretrazi.
+        </div>
+      </div>
+
+      <!-- Paginacija -->
+      <nav class="mt-4" *ngIf="totalPages > 1">
+        <ul class="pagination justify-content-center">
+          <li class="page-item" [class.disabled]="currentPage === 0">
+            <button class="page-link" (click)="goToPage(currentPage - 1)">‹</button>
+          </li>
+          <li class="page-item"
+              *ngFor="let p of getPageNumbers()"
+              [class.active]="p === currentPage">
+            <button class="page-link" (click)="goToPage(p)">{{ p + 1 }}</button>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage === totalPages - 1">
+            <button class="page-link" (click)="goToPage(currentPage + 1)">›</button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+
+    <!-- Desna strana: korpa -->
+    <div class="col-lg-4">
+      <div class="card sticky-top" style="top: 1rem;">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <strong>Korpa</strong>
+          <span class="badge badge-primary" *ngIf="cart.length > 0">{{ cart.length }}</span>
+        </div>
+        <div class="card-body">
+
+          <div *ngIf="cart.length === 0" class="text-muted text-center py-3">
+            Korpa je prazna
+          </div>
+
+          <div *ngFor="let item of cart" class="mb-3 pb-3 border-bottom">
+            <div class="d-flex justify-content-between align-items-start">
+              <div class="flex-grow-1">
+                <div class="small font-weight-bold">{{ item.product.name }}</div>
+                <div class="small text-muted">
+                  {{ item.quantity }} × {{ item.product.price | number:'1.2-2' }} €
+                </div>
+              </div>
+              <div class="text-right ml-2">
+                <div class="small font-weight-bold">{{ (item.product.price * item.quantity) | number:'1.2-2' }} €</div>
+                <button class="btn btn-link btn-sm text-danger p-0"
+                        (click)="removeFromCart(item.product.id)">
+                  ukloni
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="cart.length > 0"
+               class="d-flex justify-content-between font-weight-bold mb-3">
+            <span>Ukupno:</span>
+            <span>{{ totalPrice | number:'1.2-2' }} €</span>
+          </div>
+
+          <hr />
+
+          <div class="mb-3">
+            <label class="font-weight-bold">Firma za dostavu</label>
+            <div *ngIf="isLoadingCompanies" class="text-muted small mt-1">
+              Učitavanje firmi...
+            </div>
+            <div *ngIf="!isLoadingCompanies && companies.length === 0"
+                 class="text-danger small mt-1">
+              Nemate odobrenih firmi. Morate imati odobrenu firmu da biste poručili.
+            </div>
+            <select
+              *ngIf="!isLoadingCompanies && companies.length > 0"
+              class="form-control mt-1"
+              [(ngModel)]="selectedCompanyId">
+              <option [ngValue]="null">-- Izaberite firmu --</option>
+              <option *ngFor="let c of companies" [ngValue]="c.id">
+                {{ c.name }} ({{ c.city }}, {{ c.country }})
+              </option>
+            </select>
+          </div>
+
+          <button
+            class="btn btn-success w-100"
+            (click)="submitOrder()"
+            [disabled]="isSubmitting || cart.length === 0 || !selectedCompanyId">
+            <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm mr-2"></span>
+            {{ isSubmitting ? 'Slanje...' : 'Potvrdi porudžbinu' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,140 @@
+<div class="container py-4" style="max-width: 680px;">
+
+  <h2 class="mb-4">{{ isEditMode ? 'Edit Product' : 'Add New Product' }}</h2>
+
+  <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+    <!-- Name -->
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Name *</label>
+      <input type="text" class="form-control" formControlName="name"
+        [ngClass]="{ 'is-invalid': isInvalid('name'), 'is-valid': form.get('name')?.valid && form.get('name')?.touched }">
+      <div class="invalid-feedback">Name is required (min 2 characters).</div>
+    </div>
+
+    <!-- Description -->
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Description</label>
+      <textarea class="form-control" formControlName="description" rows="3" placeholder="Optional product description"></textarea>
+    </div>
+
+    <!-- Price & Weight -->
+    <div class="row g-3 mb-3">
+      <div class="col-md-6">
+        <label class="form-label fw-semibold">Price (€) *</label>
+        <input type="number" class="form-control" formControlName="price" min="0.01" step="0.01"
+          [ngClass]="{ 'is-invalid': isInvalid('price'), 'is-valid': form.get('price')?.valid && form.get('price')?.touched }">
+        <div class="invalid-feedback">Enter a valid price.</div>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label fw-semibold">Weight (kg) *</label>
+        <input type="number" class="form-control" formControlName="weight" min="0.01" step="0.01"
+          [ngClass]="{ 'is-invalid': isInvalid('weight'), 'is-valid': form.get('weight')?.valid && form.get('weight')?.touched }">
+        <div class="invalid-feedback">Enter a valid weight.</div>
+      </div>
+    </div>
+
+    <!-- Category -->
+    <div class="mb-3">
+      <div class="d-flex justify-content-between align-items-center mb-1">
+        <label class="form-label fw-semibold mb-0">Category *</label>
+        <button type="button" class="btn btn-sm btn-outline-primary" (click)="openCategoryModal()">
+          + New category
+        </button>
+      </div>
+      <select class="form-control" formControlName="categoryId"
+        [ngClass]="{ 'is-invalid': isInvalid('categoryId'), 'is-valid': form.get('categoryId')?.valid && form.get('categoryId')?.touched }">
+        <option [ngValue]="null" disabled>Select a category</option>
+        <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</option>
+      </select>
+      <div class="invalid-feedback">Please select a category.</div>
+    </div>
+
+    <!-- For Sale -->
+    <div class="mb-3 form-check form-switch">
+      <input class="form-check-input" type="checkbox" id="isForSale" formControlName="isForSale">
+      <label class="form-check-label" for="isForSale">Available for sale</label>
+    </div>
+
+    <!-- Image -->
+    <div class="mb-4">
+      <label class="form-label fw-semibold">
+        Product image {{ isEditMode ? '(leave empty to keep current)' : '*' }}
+      </label>
+      <div *ngIf="imagePreviewUrl" class="mb-2">
+        <img [src]="imagePreviewUrl" alt="Product image" 
+            style="max-height: 160px; border-radius: 8px; object-fit: cover;">
+      </div>
+      <div class="custom-file">
+        <input
+          type="file"
+          class="form-control"
+          id="productFile"
+          formControlName="file"
+          (change)="onFileSelected($event)"
+          accept="image/jpeg,image/png,image/gif,image/webp"
+          [ngClass]="{
+            'is-invalid': (isInvalid('file') && !isEditMode && !selectedFile) || !!fileError,
+            'is-valid': !fileError && !!selectedFile
+          }">
+        <label for="productFile" class="custom-file-label">
+          {{ selectedFile ? selectedFile.name : 'Choose product image' }}
+        </label>
+        <div *ngIf="isInvalid('file') && !isEditMode && !selectedFile" class="text-danger small mt-1">
+          Image is required.
+        </div>
+        <div *ngIf="fileError" class="text-danger small mt-1">{{ fileError }}</div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="d-flex mt-4">
+      <button type="submit" class="btn btn-primary w-50 mr-2" [disabled]="submitting">
+        <span *ngIf="submitting" class="spinner-border spinner-border-sm me-1"></span>
+        {{ isEditMode ? 'Save changes' : 'Create product' }}
+      </button>
+      <a routerLink="/products" class="btn btn-outline-secondary w-50 ml-2">Cancel</a>
+    </div>
+
+  </form>
+</div>
+
+<!-- Category Modal -->
+<div *ngIf="showCategoryModal" class="modal-backdrop-custom" (click)="closeCategoryModal()"></div>
+<div *ngIf="showCategoryModal" class="modal-custom">
+  <div class="modal-custom-dialog" (click)="$event.stopPropagation()">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="mb-0">New Category</h5>
+      <button type="button" class="close" (click)="closeCategoryModal()">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+
+    <div *ngIf="categoryError" class="alert alert-danger py-2">{{ categoryError }}</div>
+    <div *ngIf="categorySuccess" class="alert alert-success py-2">{{ categorySuccess }}</div>
+
+    <form [formGroup]="categoryForm" (ngSubmit)="onCategorySubmit()">
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Name *</label>
+        <input type="text" class="form-control" formControlName="name"
+          [ngClass]="{ 'is-invalid': isCategoryInvalid('name') }">
+        <div class="invalid-feedback">Name is required (min 2 characters).</div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Description</label>
+        <input type="text" class="form-control" formControlName="description" placeholder="Optional">
+      </div>
+      <div class="d-flex justify-content-end">
+        <button type="submit" class="btn btn-primary mr-2" [disabled]="categorySubmitting">
+          <span *ngIf="categorySubmitting" class="spinner-border spinner-border-sm me-1"></span>
+          Create
+        </button>
+        <button type="button" class="btn btn-outline-secondary" (click)="closeCategoryModal()">Cancel</button>
+      </div>
+    </form>
+
+  </div>
+</div>

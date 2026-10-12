@@ -1,0 +1,73 @@
+<div class="company-req-container">
+
+  <div class="company-req-header">
+    <h2>Zahtevi za registraciju firmi</h2>
+    <div class="d-flex align-items-center">
+      <select class="search-input mr-2" style="width: auto;" [(ngModel)]="status" (change)="onStatusChange()">
+        <option value="PENDING">Na čekanju</option>
+        <option value="APPROVED">Odobreno</option>
+        <option value="REJECTED">Odbijeno</option>
+        <option value="ALL">Svi</option>
+      </select>
+      <div class="search-wrapper">
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Pretraži po nazivu firme..."
+          [(ngModel)]="search"
+          (ngModelChange)="onSearchChange()"
+        />
+        <span class="search-icon">🔍</span>
+      </div>
+    </div>
+  </div>
+
+  <p class="company-req-count" *ngIf="!loading">
+    Ukupno: <strong>{{ totalElements }}</strong> zahteva
+  </p>
+
+  <div *ngIf="errorMessage" class="company-req-error">{{ errorMessage }}</div>
+
+  <div *ngIf="loading" class="company-req-spinner">
+    <div class="spinner"></div>
+    <p>Učitavanje...</p>
+  </div>
+
+  <div *ngIf="!loading" class="company-req-grid">
+    <div class="company-req-card" *ngFor="let req of requests">
+      <div class="company-req-info">
+        <h3 class="company-req-name">{{ req.name }}</h3>
+        <p class="company-req-text">{{ req.address }}, {{ req.city.name }}, {{ req.country.name }}</p>
+        <p class="company-req-text">Vlasnik: {{ req.ownerUsername }}</p>
+        <span class="company-req-badge"
+              [class.approved]="req.status === 'APPROVED'"
+              [class.rejected]="req.status === 'REJECTED'"
+              [class.pending]="req.status === 'PENDING'">
+          {{ req.status }}
+        </span>
+      </div>
+      <div class="company-req-actions">
+        <a [routerLink]="['/companies/manage', req.id]" class="company-req-btn">Pregledaj</a>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && requests.length === 0 && !errorMessage" class="company-req-empty">
+    <p>Nema pronađenih zahteva.</p>
+  </div>
+
+  <div class="company-req-pagination" *ngIf="totalPages > 1">
+    <button class="page-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 0">«</button>
+    <ng-container *ngFor="let p of getPages()">
+      <span *ngIf="p.toString() === '...'" class="page-btn disabled">…</span>
+      <button *ngIf="p.toString() !== '...'"
+              class="page-btn"
+              [class.active]="p === currentPage"
+              (click)="goToPage(+p)">
+        {{ +p + 1 }}
+      </button>
+    </ng-container>
+    <button class="page-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages - 1">»</button>
+  </div>
+
+</div>

@@ -1,0 +1,51 @@
+<div class="container">
+    <h2 class="text-center pt-5 mt-3">Log In</h2>
+    <div class="row justify-content-center align-items-center">
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="w-50">
+
+            <div class="form-group mb-3">
+                <label for="username">Username:</label>
+                <input
+                    type="text"
+                    class="form-control"
+                    formControlName="username"
+                    placeholder="Username"
+                    [ngClass]="{
+                        'is-invalid': loginForm.get('username')?.invalid && loginForm.get('username')?.touched,
+                        'is-valid': loginForm.get('username')?.valid && loginForm.get('username')?.touched
+                    }">
+                <div *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched" class="text-danger small mt-1">
+                    Korisničko ime je obavezno.
+                </div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="password">Password:</label>
+                <input
+                    type="password"
+                    class="form-control"
+                    formControlName="password"
+                    placeholder="Password"
+                    [ngClass]="{
+                        'is-invalid': loginForm.get('password')?.invalid && loginForm.get('password')?.touched,
+                        'is-valid': loginForm.get('password')?.valid && loginForm.get('password')?.touched
+                    }">
+                <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="text-danger small mt-1">
+                    Lozinka je obavezna.
+                </div>
+            </div>
+
+            <div *ngIf="errorMessage" class="alert alert-danger mt-2">
+                {{ errorMessage }}
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary mt-2 w-100">Log In</button>
+                <div id="register-link" class="text-right mt-3">
+                    <a [routerLink]="['/register']" class="text-info">Register here</a>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>

@@ -1,0 +1,8 @@
+app-superadmin-navbar .nav-link {
+  color: rgba(0, 0, 0, 0.5);
+  transition: color 0.15s ease-in-out;
+}
+
+app-superadmin-navbar .nav-link:hover {
+  color: rgba(0, 0, 0, 0.9);
+}

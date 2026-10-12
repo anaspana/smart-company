@@ -1,0 +1,98 @@
+<div class="container py-4" style="max-width: 860px;">
+
+  <div class="d-flex align-items-center mb-4 gap-3">
+    <h2 class="mb-0">Company Registration Request</h2>
+  </div>
+
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary"></div>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+  <ng-container *ngIf="company && !loading">
+
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <h5 class="card-title">{{ company.name }}</h5>
+            <p class="text-muted mb-1">{{ company.address }}, {{ company.city.name }}, {{ company.country.name }}</p>
+            <p class="text-muted mb-1">Owner: {{ company.ownerUsername }}</p>
+            <p class="coord-info">📍 {{ company.latitude | number:'1.4-6' }}, {{ company.longitude | number:'1.4-6' }}</p>
+          </div>
+          <span class="badge"
+                [class.bg-warning]="company.status === 'PENDING'"
+                [class.bg-success]="company.status === 'APPROVED'"
+                [class.bg-danger]="company.status === 'REJECTED'">
+            {{ company.status }}
+          </span>
+        </div>
+        <p *ngIf="company.rejectionReason" class="alert alert-danger mt-3 mb-0">
+          Rejection reason: {{ company.rejectionReason }}
+        </p>
+      </div>
+    </div>
+
+    <div class="card shadow-sm mb-4" *ngIf="imageUrls.length > 0">
+      <div class="card-body">
+        <h5 class="card-title">Company Images</h5>
+        <div class="d-flex flex-wrap gap-2">
+          <img *ngFor="let url of imageUrls" [src]="url"
+               style="width:140px;height:140px;object-fit:cover;border-radius:6px;">
+        </div>
+      </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <h5 class="card-title">Ownership Documents</h5>
+        <div *ngIf="documentUrls.length === 0" class="text-muted">No documents.</div>
+        <div class="d-flex flex-wrap gap-2">
+          <div *ngFor="let doc of documentUrls">
+            <img *ngIf="doc.fileType === 'image'" [src]="doc.url"
+                 style="width:140px;height:140px;object-fit:cover;border-radius:6px;">
+            <a *ngIf="doc.fileType === 'pdf'" [href]="doc.url" target="_blank"
+               class="d-flex flex-column align-items-center justify-content-center bg-light text-decoration-none"
+               style="width:140px;height:140px;border-radius:6px;">
+              <i class="bi bi-file-pdf" style="font-size:2.5rem;"></i>
+              <span class="small mt-1">Open PDF</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card shadow-sm mb-4" *ngIf="company.status === 'PENDING'">
+      <div class="card-body">
+        <h5 class="card-title">Decision</h5>
+
+        <div *ngIf="!showRejectForm" class="d-flex">
+          <button class="btn btn-success w-50 mr-2" (click)="approve()" [disabled]="submitting">
+            <span *ngIf="submitting" class="spinner-border spinner-border-sm me-1"></span>
+            Approve
+          </button>
+          <button class="btn btn-danger w-50 ml-2" (click)="showRejectForm = true" [disabled]="submitting">
+            Reject
+          </button>
+        </div>
+
+        <div *ngIf="showRejectForm">
+          <label class="form-label">Rejection reason <span class="text-danger">*</span></label>
+          <textarea class="form-control mb-2" rows="3" [(ngModel)]="rejectionReason"
+                    placeholder="Explain why this request is being rejected..."></textarea>
+          <div class="d-flex">
+            <button class="btn btn-danger w-50 mr-2" (click)="reject()" [disabled]="submitting">
+              <span *ngIf="submitting" class="spinner-border spinner-border-sm me-1"></span>
+              Confirm Rejection
+            </button>
+            <button class="btn btn-outline-secondary w-50 ml-2" (click)="showRejectForm = false" [disabled]="submitting">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </ng-container>
+</div>
